@@ -1,0 +1,163 @@
+
+#include <IRremote.h>
+
+#define DISABLE_CODE_FOR_RECEIVER // Saves 450 bytes program memory and 269 bytes RAM if receiving functions are not used.
+
+#define IR_SEND_PIN 15
+
+
+int sensorPresoak1 = 0;
+int sensorPresoak2 = 0;
+int sensorHighPressure = 0;
+int sensorTripleFoam = 0;
+int sensorWax = 0;
+int sensorSpotFree = 0;
+int sensorGoSign = 0;
+int sensorStopSign = 0;
+int sensorReverseSign = 0;
+int sensorDryer = 0;
+
+int sensorWashInUse = 0;
+
+// Color codes for RGB floodlight(s)
+
+// int red1 = 0xEF00, 0x4, 4;
+// int green1 = 0xEF00, 0x5, 4;
+// int blue1 = 0xEF00, 0x6, 4;
+
+// int red2 = 0xEF00, 0x8, 4;
+// int green2 = 0xEF00, 0x9, 4;
+// int blue2 = 0xEF00, 0xA, 4;
+
+// int red3 = 0xEF00, 0xC, 4;
+// int green3 = 0xEF00, 0xD, 4;
+// int blue3 = 0xEF00, 0xE, 4;
+
+// int red4 = 0xEF00, 0x10, 4;
+// int green4 = 0xEF00, 0x11, 4;
+// int blue4 = 0xEF00, 0x12, 4;
+
+// int red5 = 0xEF00, 0x14, 4;
+// int green5 = 0xEF00, 0x15, 4;
+// int blue5 = 0xEF00, 0x16, 4;
+
+// int white = 0xEF00, 0x7, 4;
+// int on = 0xEF00, 0x3, 4;
+// int off = 0xEF00, 0x2, 4;
+// int brightnessUp = 0xEF00, 0x0, 4;
+// int brightnessDown = 0xEF00, 0x1, 4;
+// int flash = 0xEF00, 0xB, 4;
+// int strobe = 0xEF00, 0xF, 4;
+// int fade = 0xEF00, 0x13, 4;
+// int smooth = 0xEF00, 0x17, 4;
+
+
+int ledThreshold = 2000; //level of light required to trigger an 'on' state for programs to run while led on.
+
+
+IRsend irsend;
+
+
+void setup() {
+  // put your setup code here, to run once:
+  pinMode(13, INPUT);
+  pinMode(39, INPUT);
+  pinMode(15, INPUT);
+
+
+  Serial.begin(115200);
+
+  IrSender.begin(IR_SEND_PIN);
+
+
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+  //various if statements to detect 'on' led which triggers corresponding color codes to IR sender to RGB floodlights.
+
+  sensorPresoak1 = analogRead(13);
+  if (sensorPresoak1 > ledThreshold) {
+    Serial.println("Presoak 1 On");
+    IrSender.sendNEC(0xEF00, 0x10, 4);    
+    delay(500);
+  }
+  sensorPresoak2 = analogRead(12);
+  if (sensorPresoak2 > ledThreshold) {
+    Serial.println("Presoak 2 On");
+    IrSender.sendNEC(0xEF00, 0x10, 4);    
+    delay(500);
+  }
+  sensorHighPressure = analogRead(14);
+  if (sensorHighPressure > ledThreshold) {
+    Serial.println("High Pressure On");
+    IrSender.sendNEC(0xEF00, 0xD, 4);    
+    delay(500);
+  }
+  sensorTripleFoam = analogRead(27);
+  if (sensorTripleFoam > ledThreshold) {
+    Serial.println("Triple Foam On");
+    IrSender.sendNEC(0xEF00, 0x14, 4);    
+    delay(500);
+    IrSender.sendNEC(0xEF00, 0x12, 4);    
+    delay(500);
+    IrSender.sendNEC(0xEF00, 0x15, 4);    
+    delay(500);
+  }
+  sensorWax = analogRead(26);
+  if (sensorWax > ledThreshold) {
+    Serial.println("Wax On");
+    IrSender.sendNEC(0xEF00, 0x4, 4);    
+    delay(500);
+  }
+  sensorSpotFree = analogRead(25);
+  if (sensorSpotFree > ledThreshold) {
+    Serial.println("Spot Free On");
+    IrSender.sendNEC(0xEF00, 0x4, 4);    
+    delay(500);
+  }
+  sensorGoSign = analogRead(33);
+  Serial.println(sensorGoSign);
+  delay(500);
+  if (sensorGoSign > ledThreshold) {
+    Serial.println("Go Sign On");
+    IrSender.sendNEC(0xEF00, 0x5, 4);    
+    delay(500);
+  }
+  sensorStopSign = analogRead(32);
+  if (sensorStopSign > ledThreshold) {
+    Serial.println("Stop Sign On");
+    IrSender.sendNEC(0xEF00, 0x4, 4);    
+    delay(500);
+  }
+  sensorReverseSign = analogRead(35);
+  if (sensorReverseSign > ledThreshold) {
+    Serial.println("Reverse Sign On");
+    IrSender.sendNEC(0xEF00, 0x12, 4);    
+    delay(500);
+  }
+  sensorDryer = analogRead(34);
+  Serial.println(sensorDryer);
+  delay(500);
+  if (sensorDryer > ledThreshold) {
+    Serial.println("LED 1 ON");
+    IrSender.sendNEC(0xEF00, 0x4, 4);    
+    delay(500);
+  }
+
+  //section for wash in use sensor which if it's on for x time then it will produce a fault trigger.
+  //the code below will not work. it needs to run in the background of the light show above.
+
+  sensorWashInUse = analogRead(39);
+  if (sensorWashInUse > ledThreshold) {
+    Serial.println("WashInUse On");
+    delay(600000); //10 minutes
+    sensorWashInUse = analogRead(39); //check to see if light is still on after 10 minutes  
+      if(sensorWashInUse > ledThreshold) {
+        //notify phone app that wash has fault.                
+      }
+    delay(500);
+  }
+
+}
