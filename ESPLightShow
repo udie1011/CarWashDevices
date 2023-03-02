@@ -17,7 +17,7 @@ int sensorStopSign = 0;
 int sensorReverseSign = 0;
 int sensorDryer = 0;
 
-int sensorWashInUse = 0;
+int sensorWashInUse;
 
 // Color codes for RGB floodlight(s)
 
