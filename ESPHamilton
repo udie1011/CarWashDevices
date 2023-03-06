@@ -1,0 +1,44 @@
+int ledThreshold = 2000;
+int faultHappened = false;
+int faultTime = 10000;
+int sensorGreenLight = 0;
+
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(115200);
+  pinMode(23, OUTPUT);
+  pinMode(4, INPUT);
+
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  // Serial.println(sensorGreenLight);
+  sensorGreenLight = analogRead(4);
+  // Serial.println(sensorGreenLight);
+  if (faultHappened == false) {
+    if (sensorGreenLight < ledThreshold) {
+      Serial.println("Fault!");
+      digitalWrite(23, HIGH);
+      faultHappened = true;   
+    }
+  }
+  if (faultHappened == true) {
+    if (sensorGreenLight > ledThreshold) {
+      faultTime -= 100;
+      Serial.println(faultTime);
+      if (faultTime < 1) {
+        faultHappened = false;
+        Serial.println("Fault cleared");
+        digitalWrite(23, LOW);
+      }
+    }
+    if (sensorGreenLight < ledThreshold) {
+      faultTime = 10000;
+    }
+  }
+  delay(100);
+
+
+}
