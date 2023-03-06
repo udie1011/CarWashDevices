@@ -1,8 +1,10 @@
 
 #include <IRremote.h>
+#include "WiFi.h"
+
+#define WIFI_NETWORK
 
 #define DISABLE_CODE_FOR_RECEIVER // Saves 450 bytes program memory and 269 bytes RAM if receiving functions are not used.
-
 #define IR_SEND_PIN 15
 
 
@@ -17,7 +19,11 @@ int sensorStopSign = 0;
 int sensorReverseSign = 0;
 int sensorDryer = 0;
 
-int sensorWashInUse;
+int sensorWashInUse = 0;
+
+int washInUseTime = 6000;
+
+
 
 // Color codes for RGB floodlight(s)
 
@@ -63,6 +69,7 @@ void setup() {
   pinMode(13, INPUT);
   pinMode(39, INPUT);
   pinMode(15, INPUT);
+  pinMode(2, OUTPUT);  
 
 
   Serial.begin(115200);
@@ -108,56 +115,58 @@ void loop() {
   sensorWax = analogRead(26);
   if (sensorWax > ledThreshold) {
     Serial.println("Wax On");
-    IrSender.sendNEC(0xEF00, 0x4, 4);    
+    IrSender.sendNEC(0xEF00, 0xC, 4);
     delay(500);
   }
   sensorSpotFree = analogRead(25);
   if (sensorSpotFree > ledThreshold) {
     Serial.println("Spot Free On");
-    IrSender.sendNEC(0xEF00, 0x4, 4);    
+    IrSender.sendNEC(0xEF00, 0x15, 4);    
     delay(500);
   }
   sensorGoSign = analogRead(33);
-  Serial.println(sensorGoSign);
-  delay(500);
   if (sensorGoSign > ledThreshold) {
     Serial.println("Go Sign On");
     IrSender.sendNEC(0xEF00, 0x5, 4);    
     delay(500);
   }
+  sensorReverseSign = analogRead(35);
+  if (sensorReverseSign > ledThreshold) {
+    Serial.println("Reverse Sign On");
+    IrSender.sendNEC(0xEF00, 0x6, 4);    
+    delay(500);
+  }
+  sensorDryer = analogRead(34);
+  if (sensorDryer > ledThreshold) {
+    Serial.println("Dryer On");
+    IrSender.sendNEC(0xEF00, 0x4, 4);    
+    delay(500);
+  }
   sensorStopSign = analogRead(32);
-  if (sensorStopSign > ledThreshold) {
+  if (sensorStopSign > ledThreshold && sensorDryer < ledThreshold && sensorSpotFree < ledThreshold && sensorWax < ledThreshold && sensorTripleFoam < ledThreshold && sensorHighPressure < ledThreshold && sensorPresoak2 < ledThreshold && sensorPresoak1 < ledThreshold){
     Serial.println("Stop Sign On");
     IrSender.sendNEC(0xEF00, 0x4, 4);    
     delay(500);
   }
-  sensorReverseSign = analogRead(35);
-  if (sensorReverseSign > ledThreshold) {
-    Serial.println("Reverse Sign On");
-    IrSender.sendNEC(0xEF00, 0x12, 4);    
-    delay(500);
-  }
-  sensorDryer = analogRead(34);
-  Serial.println(sensorDryer);
-  delay(500);
-  if (sensorDryer > ledThreshold) {
-    Serial.println("LED 1 ON");
-    IrSender.sendNEC(0xEF00, 0x4, 4);    
-    delay(500);
-  }
+
 
   //section for wash in use sensor which if it's on for x time then it will produce a fault trigger.
-  //the code below will not work. it needs to run in the background of the light show above.
 
   sensorWashInUse = analogRead(39);
   if (sensorWashInUse > ledThreshold) {
     Serial.println("WashInUse On");
-    delay(600000); //10 minutes
-    sensorWashInUse = analogRead(39); //check to see if light is still on after 10 minutes  
-      if(sensorWashInUse > ledThreshold) {
-        //notify phone app that wash has fault.                
-      }
-    delay(500);
+    washInUseTime -= 1000; //1 second decrement
+    Serial.println(washInUseTime);
+    delay(100);
+    if(washInUseTime < 1) {
+      Serial.println("Alarm!");
+      digitalWrite(2, HIGH);      
+    }    
   }
 
+  if (sensorWashInUse < ledThreshold) {
+    washInUseTime = 6000;
+    digitalWrite(2, LOW);   
+   }  
+     
 }
