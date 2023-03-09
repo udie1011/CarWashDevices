@@ -1,4 +1,3 @@
-
 #include <IRremote.h>
 #include "WiFi.h"
 
@@ -21,7 +20,7 @@ int sensorDryer = 0;
 
 int sensorWashInUse = 0;
 
-int washInUseTime = 6000;
+int washInUseTime = 6000000;
 
 
 
@@ -58,7 +57,7 @@ int washInUseTime = 6000;
 // int smooth = 0xEF00, 0x17, 4;
 
 
-int ledThreshold = 2000; //level of light required to trigger an 'on' state for programs to run while led on.
+int ledThreshold = 1000; //level of light required to trigger an 'on' state for programs to run while led on.
 
 
 IRsend irsend;
@@ -85,6 +84,7 @@ void loop() {
   //various if statements to detect 'on' led which triggers corresponding color codes to IR sender to RGB floodlights.
 
   sensorPresoak1 = analogRead(13);
+  // Serial.println(sensorPresoak1);
   if (sensorPresoak1 > ledThreshold) {
     Serial.println("Presoak 1 On");
     IrSender.sendNEC(0xEF00, 0x10, 4);    
@@ -97,7 +97,7 @@ void loop() {
     delay(500);
   }
   sensorHighPressure = analogRead(14);
-  if (sensorHighPressure > ledThreshold) {
+  if (sensorHighPressure > ledThreshold && sensorSpotFree < ledThreshold && sensorGoSign < ledThreshold) {
     Serial.println("High Pressure On");
     IrSender.sendNEC(0xEF00, 0xD, 4);    
     delay(500);
@@ -154,7 +154,7 @@ void loop() {
 
   sensorWashInUse = analogRead(39);
   if (sensorWashInUse > ledThreshold) {
-    Serial.println("WashInUse On");
+    // Serial.println("WashInUse On");
     washInUseTime -= 1000; //1 second decrement
     Serial.println(washInUseTime);
     delay(100);
@@ -165,8 +165,8 @@ void loop() {
   }
 
   if (sensorWashInUse < ledThreshold) {
-    washInUseTime = 6000;
-    digitalWrite(2, LOW);   
+    washInUseTime = 6000000;
+    digitalWrite(2, LOW);  
    }  
      
 }
