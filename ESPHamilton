@@ -1,4 +1,4 @@
-int ledThreshold = 2000;
+int ledThreshold = 200;
 int faultHappened = false;
 int faultTime = 10000;
 int sensorGreenLight = 0;
@@ -14,19 +14,20 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  // Serial.println(sensorGreenLight);
+
   sensorGreenLight = analogRead(4);
+
   // Serial.println(sensorGreenLight);
   if (faultHappened == false) {
     if (sensorGreenLight < ledThreshold) {
       Serial.println("Fault!");
       digitalWrite(23, HIGH);
-      faultHappened = true;   
+      faultHappened = true; 
     }
   }
   if (faultHappened == true) {
     if (sensorGreenLight > ledThreshold) {
-      faultTime -= 100;
+      faultTime -= 500;
       Serial.println(faultTime);
       if (faultTime < 1) {
         faultHappened = false;
@@ -38,7 +39,8 @@ void loop() {
       faultTime = 10000;
     }
   }
-  delay(100);
+  delay(500);
+  // Serial.println(sensorGreenLight);
 
 
 }
