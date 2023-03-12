@@ -148,6 +148,13 @@ void loop() {
     IrSender.sendNEC(0xEF00, 0x4, 4);    
     delay(500);
   }
+  if (sensorStopSign < ledThreshold && sensorDryer < ledThreshold && sensorReverseSign < ledThreshold && sensorGoSign < ledThreshold && sensorSpotFree < ledThreshold && sensorWax < ledThreshold && sensorTripleFoam < ledThreshold && sensorHighPressure < ledThreshold && sensorPresoak2 < ledThreshold && sensorPresoak1 < ledThreshold){
+    Serial.println("Stop Sign On");
+    IrSender.sendNEC(0xEF00, 0x17, 4);    
+    delay(500);
+  }
+
+
 
 
   //section for wash in use sensor which if it's on for x time then it will produce a fault trigger.
