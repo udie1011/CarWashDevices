@@ -20,6 +20,8 @@ int sensorDryer = 0;
 
 int sensorWashInUse = 0;
 
+int washNotInUse = false;
+
 int washInUseTime = 6000000;
 
 
@@ -107,7 +109,7 @@ void loop() {
     Serial.println("Triple Foam On");
     IrSender.sendNEC(0xEF00, 0x14, 4);    
     delay(500);
-    IrSender.sendNEC(0xEF00, 0x12, 4);    
+    IrSender.sendNEC(0xEF00, 0x16, 4);    
     delay(500);
     IrSender.sendNEC(0xEF00, 0x15, 4);    
     delay(500);
@@ -127,7 +129,8 @@ void loop() {
   sensorGoSign = analogRead(33);
   if (sensorGoSign > ledThreshold) {
     Serial.println("Go Sign On");
-    IrSender.sendNEC(0xEF00, 0x5, 4);    
+    IrSender.sendNEC(0xEF00, 0x5, 4);  
+    washNotInUse = false;  
     delay(500);
   }
   sensorReverseSign = analogRead(35);
@@ -147,12 +150,18 @@ void loop() {
     Serial.println("Stop Sign On");
     IrSender.sendNEC(0xEF00, 0x4, 4);    
     delay(500);
+    washNotInUse = false;
   }
-  if (sensorStopSign < ledThreshold && sensorDryer < ledThreshold && sensorReverseSign < ledThreshold && sensorGoSign < ledThreshold && sensorSpotFree < ledThreshold && sensorWax < ledThreshold && sensorTripleFoam < ledThreshold && sensorHighPressure < ledThreshold && sensorPresoak2 < ledThreshold && sensorPresoak1 < ledThreshold){
-    Serial.println("Stop Sign On");
-    IrSender.sendNEC(0xEF00, 0x17, 4);    
-    delay(500);
+  if (washNotInUse == false) {
+    if (sensorStopSign < ledThreshold && sensorDryer < ledThreshold && sensorReverseSign < ledThreshold && sensorGoSign < ledThreshold && sensorSpotFree < ledThreshold && sensorWax < ledThreshold && sensorTripleFoam < ledThreshold && sensorHighPressure < ledThreshold && sensorPresoak2 < ledThreshold && sensorPresoak1 < ledThreshold){
+      Serial.println("Wash not in use");
+      IrSender.sendNEC(0xEF00, 0x17, 4); 
+      washNotInUse = true;       
+      delay(500);
+    }
   }
+
+// IrSender.sendNEC(0xEF00, 0x3, 4);    
 
 
 
