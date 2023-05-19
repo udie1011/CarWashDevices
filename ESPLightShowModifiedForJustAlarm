@@ -83,7 +83,7 @@ void loop() {
 
   //various if statements to detect 'on' led which triggers corresponding color codes to IR sender to RGB floodlights.
 
-  sensorPresoak1 = analogRead(13);
+  // sensorPresoak1 = analogRead(13);
   // Serial.println(sensorPresoak1);
   // if (sensorPresoak1 > ledThreshold) {
   //   Serial.println("Presoak 1 On");
@@ -158,7 +158,6 @@ void loop() {
 
 
   //section for wash in use sensor which if it's on for x time then it will produce a fault trigger.
-
   sensorWashInUse = analogRead(4);
   if (sensorWashInUse > ledThreshold) {
     // Serial.println("WashInUse On");
